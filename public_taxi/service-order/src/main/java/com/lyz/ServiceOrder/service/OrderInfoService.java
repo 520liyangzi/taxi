@@ -11,6 +11,7 @@ import com.lyz.ServiceOrder.mapper.OrderInfoMapper;
 import com.lyz.internalcommon.dto.PriceRule;
 import com.lyz.internalcommon.dto.ResponseResult;
 import com.lyz.internalcommon.request.OrderRequest;
+import com.lyz.internalcommon.response.OrderDriverResponse;
 import com.lyz.internalcommon.response.TerminalResponse;
 import com.lyz.internalcommon.util.RedisPrefixUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -106,7 +107,7 @@ public class OrderInfoService {
         raduisList.add(4000);
         raduisList.add(5000);
         ResponseResult<List<TerminalResponse>> listResponseResult = null;
-        for (int i = 0 ; i < raduisList.size();i++){
+        UI : for (int i = 0 ; i < raduisList.size();i++){
             listResponseResult = serviceMapClient.terminalAroundSearch(center, raduisList.get(i));
             List<TerminalResponse> data = listResponseResult.getData();
             log.info("寻找车辆   半径: "+ raduisList.get(i));
@@ -116,6 +117,16 @@ public class OrderInfoService {
                 JSONObject jsonObject = result.getJSONObject(j);
                 String carIdString = jsonObject.getString("carId");
                 Long carId = Long.parseLong(carIdString);
+
+                //根据ID  查询对应是否有对应的可派单司机
+                ResponseResult<OrderDriverResponse> availiableDriver = serviceDriverUserClient.getAvailiableDriver(carId);
+                if (availiableDriver.getCode() == 1607){
+                    log.info("没有对应的司机    " + carId);
+                    continue UI;
+                }else {
+                    log.info("找到了正在出车的司机  车辆ID是 " + carId);
+                    break UI;
+                }
             }
         }
     }

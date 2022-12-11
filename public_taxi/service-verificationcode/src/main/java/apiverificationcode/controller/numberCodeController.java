@@ -1,4 +1,4 @@
-package com.lyz.apiverificationcode.controller;
+package apiverificationcode.controller;
 
 
 import com.lyz.internalcommon.dto.ResponseResult;
