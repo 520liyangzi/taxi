@@ -1,0 +1,15 @@
+server:
+  port: 8089
+
+spring:
+  datasource:
+    name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/service-order?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: 20000113a@
+  application:
+    name: service-order
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848

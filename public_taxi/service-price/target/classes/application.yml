@@ -1,0 +1,16 @@
+server:
+  port: 8084
+
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr:127.0.0.1:8848
+  application:
+    name: service-price
+
+  datasource:
+    name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/service-price?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: 20000113a@

@@ -1,0 +1,15 @@
+server:
+  port: 8083
+
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr:127.0.0.1:8848
+  application:
+    name: service-passenger-user
+  datasource:
+    name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/service-passenger-user?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: 20000113a@

@@ -1,0 +1,36 @@
+key: cbb3992f13d366b3d3040d76ff30a63d
+
+服务创建
+{
+    "data": {
+        "name": "滴滴service",
+        "sid": 840072
+    },
+    "errcode": 10000,
+    "errdetail": null,
+    "errmsg": "OK"
+}
+
+
+终端创建
+{
+    "data": {
+        "name": "车辆1",
+        "tid": 606989131,
+        "sid": 840072
+    },
+    "errcode": 10000,
+    "errdetail": null,
+    "errmsg": "OK"
+}
+
+增加轨迹
+{
+    "data": {
+        "trname": "测试轨迹",
+        "trid": 20
+    },
+    "errcode": 10000,
+    "errdetail": null,
+    "errmsg": "OK"
+}
