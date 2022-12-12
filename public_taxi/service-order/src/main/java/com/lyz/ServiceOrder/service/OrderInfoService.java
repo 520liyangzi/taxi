@@ -5,7 +5,9 @@ import com.lyz.ServiceOrder.remote.ServiceDriverUserClient;
 import com.lyz.ServiceOrder.remote.ServiceMapClient;
 import com.lyz.ServiceOrder.remote.ServicePriceClient;
 import com.lyz.internalcommon.constant.CommonStatusEnum;
+import com.lyz.internalcommon.constant.DriverCarConstants;
 import com.lyz.internalcommon.constant.OrderConstant;
+import com.lyz.internalcommon.dto.Car;
 import com.lyz.internalcommon.dto.OrderInfo;
 import com.lyz.ServiceOrder.mapper.OrderInfoMapper;
 import com.lyz.internalcommon.dto.PriceRule;
@@ -39,6 +41,7 @@ public class OrderInfoService {
 
     @Autowired
     ServiceDriverUserClient serviceDriverUserClient;
+
 
     public ResponseResult add(OrderRequest orderRequest){
 
@@ -111,12 +114,13 @@ public class OrderInfoService {
             listResponseResult = serviceMapClient.terminalAroundSearch(center, raduisList.get(i));
             List<TerminalResponse> data = listResponseResult.getData();
             log.info("寻找车辆   半径: "+ raduisList.get(i));
-            System.out.println(data);
             JSONArray result = JSONArray.fromObject(data);
             for(int j = 0; j < result.size();j++){
                 JSONObject jsonObject = result.getJSONObject(j);
                 String carIdString = jsonObject.getString("carId");
                 Long carId = Long.parseLong(carIdString);
+                String  longitude = jsonObject.getString("longitude");
+                String latitude = jsonObject.getString("latitude");
 
                 //根据ID  查询对应是否有对应的可派单司机
                 ResponseResult<OrderDriverResponse> availiableDriver = serviceDriverUserClient.getAvailiableDriver(carId);
@@ -124,8 +128,31 @@ public class OrderInfoService {
                     log.info("没有对应的司机    " + carId);
                     continue UI;
                 }else {
+                    //出车  +  没有订单
                     log.info("找到了正在出车的司机  车辆ID是 " + carId);
+                    OrderDriverResponse orderDriverResponse = availiableDriver.getData();
+                    Long driverId = orderDriverResponse.getDriverId();
+                    //判断司机是否有正在进行中的订单
+                    if(isDriverOrderGoingOn(driverId) > 0){
+                        continue;
+                    }
+
+                    //订单直接匹配司机   把订单中与司机相关的信息补全
+                    QueryWrapper<Car> queryWrapper = new QueryWrapper<Car>();
+                    queryWrapper.eq("id",carId);
+                    LocalDateTime now = LocalDateTime.now();
+                    orderInfo.setDriverId(driverId);
+                    orderInfo.setDriverPhone(orderDriverResponse.getDriverPhone());
+                    orderInfo.setCarId(orderDriverResponse.getCarId());
+                    orderInfo.setReceiveOrderCarLongitude(longitude);
+                    orderInfo.setReceiveOrderCarLatitude(latitude);
+                    orderInfo.setReceiveOrderTime(now);
+                    orderInfo.setLicenseId(orderDriverResponse.getLicenseId());
+                    orderInfo.setVehicleNo(orderDriverResponse.getVehicleNo());
+                    orderInfo.setOrderStatus(OrderConstant.DRIVER_RECEIVE_ORDER); //接单
+                    orderInfoMapper.updateById(orderInfo);
                     break UI;
+
                 }
             }
         }
@@ -182,7 +209,21 @@ public class OrderInfoService {
 
         Long aLong = orderInfoMapper.selectCount(queryWrapper);
         return aLong;
-
     }
+
+
+    private Long isDriverOrderGoingOn(Long driverId){
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("driver_id",driverId);
+        queryWrapper.and(wrapper -> wrapper.eq("order_status", OrderConstant.DRIVER_RECEIVE_ORDER)
+                .or().eq("order_status", OrderConstant.DRIVER_TO_PICKUP_PASSENGER)
+                .or().eq("order_status", OrderConstant.DRIVER_ARRIVED_DEPARTURE)
+                .or().eq("order_status", OrderConstant.PICK_UP_PASSENGER));
+
+        Long aLong = orderInfoMapper.selectCount(queryWrapper);
+        log.info("司机Id ：" + driverId +"正在进行的订单数量是 " + aLong);
+        return aLong;
+    }
+
 
 }

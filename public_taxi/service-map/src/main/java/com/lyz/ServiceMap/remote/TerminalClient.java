@@ -73,10 +73,19 @@ public class TerminalClient {
         List<TerminalResponse> list = new ArrayList<>();
         for(int i = 0;i<results.size();i++){
             JSONObject jsonobj = results.getJSONObject(i);
+            System.out.println("qqqqqqq" + jsonobj);
+            //desc转为carId
             String desc = jsonobj.getString("desc");
             Long carId = Long.parseLong(desc);
+            //tid为终端信息
             String tid = jsonobj.getString("tid");
+            //现在要写上精度和纬度信息
+            JSONObject location = jsonobj.getJSONObject("location");
+            String longitudeString = location.getString("longitude");
+            String latitudeString = location.getString("latitude");
             TerminalResponse terminalRespose = new TerminalResponse();
+            terminalRespose.setLongitude(longitudeString);
+            terminalRespose.setLatitude(latitudeString);
             terminalRespose.setTid(tid);
             terminalRespose.setCarId(carId);
             list.add(terminalRespose);
