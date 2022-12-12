@@ -23,6 +23,7 @@ public class test {
 
     @GetMapping("/test-real-time-order/{orderId}")
     public String t(@PathVariable("orderId") long orderId){
+    System.out.println("并发测试： orderId" + orderId);
         OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
         orderInfoService.dispatchRealTimeOrder(orderInfo);
         return "success";

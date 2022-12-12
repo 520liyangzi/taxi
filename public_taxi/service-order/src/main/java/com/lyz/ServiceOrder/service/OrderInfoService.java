@@ -133,26 +133,31 @@ public class OrderInfoService {
                     OrderDriverResponse orderDriverResponse = availiableDriver.getData();
                     Long driverId = orderDriverResponse.getDriverId();
                     //判断司机是否有正在进行中的订单
-                    if(isDriverOrderGoingOn(driverId) > 0){
-                        continue;
+
+
+                    //不管原来指向哪里  最终都是从常量池中拿出一个引用地址  只有一个地方
+                    //如果没有intern  则可能有很多入口 虽然有锁
+                    synchronized ((driverId + "").intern()){
+                        if(isDriverOrderGoingOn(driverId) > 0){
+                            log.info("司机他妈的有个订单了  操！！！");
+                            continue;
+                        }
+                        //订单直接匹配司机   把订单中与司机相关的信息补全
+                        QueryWrapper<Car> queryWrapper = new QueryWrapper<Car>();
+                        queryWrapper.eq("id",carId);
+                        LocalDateTime now = LocalDateTime.now();
+                        orderInfo.setDriverId(driverId);
+                        orderInfo.setDriverPhone(orderDriverResponse.getDriverPhone());
+                        orderInfo.setCarId(orderDriverResponse.getCarId());
+                        orderInfo.setReceiveOrderCarLongitude(longitude);
+                        orderInfo.setReceiveOrderCarLatitude(latitude);
+                        orderInfo.setReceiveOrderTime(now);
+                        orderInfo.setLicenseId(orderDriverResponse.getLicenseId());
+                        orderInfo.setVehicleNo(orderDriverResponse.getVehicleNo());
+                        orderInfo.setOrderStatus(OrderConstant.DRIVER_RECEIVE_ORDER); //接单
+                        orderInfoMapper.updateById(orderInfo);
+                        break UI;
                     }
-
-                    //订单直接匹配司机   把订单中与司机相关的信息补全
-                    QueryWrapper<Car> queryWrapper = new QueryWrapper<Car>();
-                    queryWrapper.eq("id",carId);
-                    LocalDateTime now = LocalDateTime.now();
-                    orderInfo.setDriverId(driverId);
-                    orderInfo.setDriverPhone(orderDriverResponse.getDriverPhone());
-                    orderInfo.setCarId(orderDriverResponse.getCarId());
-                    orderInfo.setReceiveOrderCarLongitude(longitude);
-                    orderInfo.setReceiveOrderCarLatitude(latitude);
-                    orderInfo.setReceiveOrderTime(now);
-                    orderInfo.setLicenseId(orderDriverResponse.getLicenseId());
-                    orderInfo.setVehicleNo(orderDriverResponse.getVehicleNo());
-                    orderInfo.setOrderStatus(OrderConstant.DRIVER_RECEIVE_ORDER); //接单
-                    orderInfoMapper.updateById(orderInfo);
-                    break UI;
-
                 }
             }
         }
