@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h1>司机监听测试页面</h1>
+<div id = "message">推送过来的消息 </br></div>
+<button onclick="setMessageContent('鼠标点击了')">测试message展示</button>
+
+<button onclick="sourceclose()">关闭链接</button>
+
+<script>
+    driverId = 1;
+    sourse = null;
+
+    if(window.EventSource){
+        console.info("支持SSE");
+        sourse = new EventSource("http://localhost:9000/connect/"+driverId);
+        //监听服务端推送的消息
+        sourse.addEventListener("message",function (e){
+            content = e.data;
+            console.info("消息内容"+content);
+            setMessageContent(content)
+        })
+    }else {
+        setMessageContent("不支持")
+    }
+
+    function setMessageContent(content){
+        document.getElementById("message").innerHTML+=(content+'</br>');
+    }
+
+    function sourceclose(){
+        console.info("close方法执行");
+        //客户sourse的关闭
+        sourse.close();
+        //服务端map的移除
+        httpRequest = new XMLHttpRequest();
+        httpRequest.open("get","http://localhost:9000/close/"+driverId);
+        httpRequest.send();
+    }
+
+</script>
+
+</body>
+</html>

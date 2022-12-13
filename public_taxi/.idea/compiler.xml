@@ -16,6 +16,7 @@
         <module name="service-price" />
         <module name="service-order" />
         <module name="service-passenger-user" />
+        <module name="sse-driver-client" />
         <module name="api-driver" />
       </profile>
     </annotationProcessing>
@@ -32,6 +33,7 @@
       <module name="service-passenger-user" options="-parameters" />
       <module name="service-price" options="-parameters" />
       <module name="service-verificationcode" options="-parameters" />
+      <module name="sse-driver-client" options="-parameters" />
     </option>
   </component>
 </project>
