@@ -19,6 +19,8 @@ import com.lyz.internalcommon.util.RedisPrefixUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -97,11 +99,14 @@ public class OrderInfoService {
 
     @Autowired
     ServiceMapClient serviceMapClient;
+
+    @Autowired
+    RedissonClient redissonClient;
     /**
      * 实时订单派单逻辑
      * @param orderInfo
      */
-    public void dispatchRealTimeOrder(OrderInfo orderInfo){
+    public synchronized void dispatchRealTimeOrder(OrderInfo orderInfo){
         String depLatitude = orderInfo.getDepLatitude();
         String depLongitude = orderInfo.getDepLongitude();
         String center = depLatitude + "," + depLongitude;
@@ -134,14 +139,18 @@ public class OrderInfoService {
                     Long driverId = orderDriverResponse.getDriverId();
                     //判断司机是否有正在进行中的订单
 
-
                     //不管原来指向哪里  最终都是从常量池中拿出一个引用地址  只有一个地方
                     //如果没有intern  则可能有很多入口 虽然有锁
-                    synchronized ((driverId + "").intern()){
+                    String lockKey = (driverId + "").intern();
+                    RLock lock = redissonClient.getLock(lockKey);
+                    lock.lock();
+//                    synchronized ((driverId + "").intern()){
                         if(isDriverOrderGoingOn(driverId) > 0){
+                            lock.unlock();
                             log.info("司机他妈的有个订单了  操！！！");
                             continue;
                         }
+
                         //订单直接匹配司机   把订单中与司机相关的信息补全
                         QueryWrapper<Car> queryWrapper = new QueryWrapper<Car>();
                         queryWrapper.eq("id",carId);
@@ -156,8 +165,9 @@ public class OrderInfoService {
                         orderInfo.setVehicleNo(orderDriverResponse.getVehicleNo());
                         orderInfo.setOrderStatus(OrderConstant.DRIVER_RECEIVE_ORDER); //接单
                         orderInfoMapper.updateById(orderInfo);
+                        lock.unlock();
                         break UI;
-                    }
+//                    }
                 }
             }
         }
