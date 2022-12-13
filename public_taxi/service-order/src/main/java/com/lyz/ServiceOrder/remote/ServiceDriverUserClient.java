@@ -15,4 +15,7 @@ public interface ServiceDriverUserClient {
 
     @RequestMapping(method = RequestMethod.GET,value = "/get-availiable-driver/{carId}")
     public ResponseResult<OrderDriverResponse> getAvailiableDriver(@PathVariable("carId") Long carId);
+
+    @RequestMapping(method = RequestMethod.GET,value = "/car")
+    ResponseResult<Car> getCarById(@RequestParam Long carId);
 }

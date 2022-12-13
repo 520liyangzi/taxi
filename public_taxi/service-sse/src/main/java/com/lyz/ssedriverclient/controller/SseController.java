@@ -1,5 +1,7 @@
 package com.lyz.ssedriverclient.controller;
 
+import com.lyz.internalcommon.util.SsePrefixUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,37 +13,43 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@Slf4j
 public class SseController {
 
     public static Map<String,SseEmitter> stringSseEmitterMap = new HashMap<>();
 
-    @GetMapping("/connect/{driverId}")
-    public SseEmitter connect(@PathVariable("driverId")String driverId){
-        System.out.println("司机ID： " + driverId);
+    @GetMapping("/connect")
+    public SseEmitter connect(@RequestParam Long userId,@RequestParam String identity){
+        log.info("用户Id是 " + userId + "身份类型是 "+ identity);
         SseEmitter sseEmitter = new SseEmitter(0L);
-        stringSseEmitterMap.put(driverId,sseEmitter);
+        String mapKey = SsePrefixUtils.gengeratorKey(userId,identity);
+        stringSseEmitterMap.put(mapKey,sseEmitter);
         return sseEmitter;
     }
 
     @GetMapping("/push")
-    public String push(@RequestParam String driverId,@RequestParam String content){
+    public String push(@RequestParam Long userId,@RequestParam String identity,@RequestParam String content){
+        log.info(userId + " ======" + identity);
+        log.info(content);
+        String mapKey = SsePrefixUtils.gengeratorKey(userId,identity);
         try {
-            if (stringSseEmitterMap.containsKey(driverId)){
-                stringSseEmitterMap.get(driverId).send(content);
+            if (stringSseEmitterMap.containsKey(mapKey)){
+                stringSseEmitterMap.get(mapKey).send(content);
             }else {
                 return "推送失败！";
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "给用户： " + driverId +"  发送了消息： " + content;
+        return "给用户： " + mapKey +"  发送了消息： " + content;
     }
 
-    @GetMapping("/close/{driverId}")
-    public String close(@PathVariable String driverId){
-    System.out.println("close方法调用了" + driverId);
-        if (stringSseEmitterMap.containsKey(driverId)){
-            stringSseEmitterMap.remove(driverId);
+    @GetMapping("/close")
+    public String close(@RequestParam Long userId,@RequestParam String identity){
+        String mapKey = SsePrefixUtils.gengeratorKey(userId,identity);
+    System.out.println("close方法调用了" + mapKey);
+        if (stringSseEmitterMap.containsKey(mapKey)){
+            stringSseEmitterMap.remove(mapKey);
         }
         return "OK";
     }
