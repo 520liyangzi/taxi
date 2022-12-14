@@ -5,6 +5,7 @@ import com.lyz.internalcommon.dto.ResponseResult;
 import com.lyz.internalcommon.dto.ServiceResponse;
 
 import com.lyz.internalcommon.response.TerminalResponse;
+import com.lyz.internalcommon.response.TrearchResponse;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,4 +94,52 @@ public class TerminalClient {
         return ResponseResult.success(list);
     }
 
+    /**
+     * 获得路程和时长
+     * @param tid
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    public ResponseResult<TrearchResponse> trsearch(String tid, Long startTime, Long endTime) {
+        StringBuilder url = new StringBuilder();
+        url.append(AmapConfigConstant.TRSEARCH);
+        url.append("?");
+        url.append("key="+key);
+        url.append("&");
+        url.append("sid="+sid);
+        url.append("&");
+        url.append("tid="+tid);
+        url.append("&");
+        url.append("starttime="+startTime);
+        url.append("&");
+        url.append("endtime="+endTime);
+        System.out.println("请求   "+url.toString());
+        ResponseEntity<String> forEntity = restTemplate.postForEntity(url.toString(), null,String.class);
+        System.out.println("相应  "+forEntity);
+        JSONObject result = JSONObject.fromObject(forEntity.getBody());
+        JSONObject data = result.getJSONObject("data");
+        int counts = data.getInt("counts");
+        if(counts == 0){
+            return ResponseResult.fail("没有记录");
+        }
+        JSONArray tracks = data.getJSONArray("tracks");
+        long driveMile = 0L;
+        long driveTime = 0L;
+        for(int i = 0;i<tracks.size();i++){
+            JSONObject jsonObject = tracks.getJSONObject(i);
+
+            long distance = jsonObject.getLong("distance");
+            driveMile += distance;
+
+            long time = jsonObject.getLong("time");
+            time = time / (1000 * 60);
+            driveTime += time;
+        }
+        TrearchResponse trearchResponse = new TrearchResponse();
+        trearchResponse.setDriveMile(driveMile);
+        trearchResponse.setDriveTime(driveTime);
+
+        return ResponseResult.success(trearchResponse);
+    }
 }

@@ -25,6 +25,8 @@ public class AmapConfigConstant {
 
     public static final String AROUND_SEARCH = "https://tsapi.amap.com/v1/track/terminal/aroundsearch";
 
+    public static final String TRSEARCH = "https://tsapi.amap.com/v1/track/terminal/trsearch";
+
     public static final String DISTRICTS = "districts";
 
     public static final String ADCODE = "adcode";

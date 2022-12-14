@@ -4,6 +4,7 @@ import com.lyz.ServiceMap.service.TerminalService;
 import com.lyz.internalcommon.dto.ResponseResult;
 
 import com.lyz.internalcommon.response.TerminalResponse;
+import com.lyz.internalcommon.response.TrearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,18 @@ public class TerminalController {
     public ResponseResult<List<TerminalResponse>> aroundSearch(String center , Integer radius){
         System.out.println(center + " ......" + radius);
         return terminalService.aroundSearch(center,radius);
+    }
+
+    /**
+     * 轨迹查询出运行时间和距离
+     * @param tid
+     * @param starttime
+     * @param endtime
+     * @return
+     */
+    @PostMapping("/trsearch")
+    public ResponseResult<TrearchResponse> trsearch(String tid, Long starttime, Long endtime){
+        return terminalService.trsearch(tid,starttime,endtime);
     }
 
 }

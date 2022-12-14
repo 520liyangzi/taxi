@@ -17,6 +17,7 @@ import com.lyz.internalcommon.dto.ResponseResult;
 import com.lyz.internalcommon.request.OrderRequest;
 import com.lyz.internalcommon.response.OrderDriverResponse;
 import com.lyz.internalcommon.response.TerminalResponse;
+import com.lyz.internalcommon.response.TrearchResponse;
 import com.lyz.internalcommon.util.RedisPrefixUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -338,7 +340,6 @@ public class OrderInfoService {
      */
     public ResponseResult toPickUpPassenger(@RequestBody OrderRequest orderRequest){
         Long orderId = orderRequest.getOrderId();
-        LocalDateTime toPickUpPassengerTime = orderRequest.getToPickUpPassengerTime();
         String toPickUpPassengerLongitude = orderRequest.getToPickUpPassengerLongitude();
         String toPickUpPassengerLatitude = orderRequest.getToPickUpPassengerLatitude();
         String toPickUpPassengerAddress = orderRequest.getToPickUpPassengerAddress();
@@ -373,5 +374,62 @@ public class OrderInfoService {
         return ResponseResult.success();
     }
 
+    /**
+     * 司机接到乘客
+     * @param orderRequest
+     * @return
+     */
+    public ResponseResult pickUpPassenger(OrderRequest orderRequest) {
+    System.out.println(orderRequest);
+        Long orderId = orderRequest.getOrderId();
+        String pickUpPassengerLongitude = orderRequest.getPickUpPassengerLongitude();
+        String pickUpPassengerLatitude = orderRequest.getPickUpPassengerLatitude();
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id",orderId);
+        OrderInfo orderInfo = orderInfoMapper.selectOne(queryWrapper);
+        orderInfo.setPickUpPassengerTime(LocalDateTime.now());
+        orderInfo.setPickUpPassengerLongitude(pickUpPassengerLongitude);
+        orderInfo.setPickUpPassengerLatitude(pickUpPassengerLatitude);
+        orderInfo.setOrderStatus(OrderConstant.PICK_UP_PASSENGER);
+        orderInfoMapper.updateById(orderInfo);
+        return ResponseResult.success();
+    }
 
+
+    /**
+     * 乘客下床到达目的地   形成终止
+     * @param orderRequest
+     * @return
+     */
+    public ResponseResult passengerGetoff(OrderRequest orderRequest) {
+        System.out.println(orderRequest);
+        Long orderId = orderRequest.getOrderId();
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id",orderId);
+        OrderInfo orderInfo = orderInfoMapper.selectOne(queryWrapper);
+
+        orderInfo.setPassengerGetoffTime(LocalDateTime.now());
+        orderInfo.setPassengerGetoffLongitude(orderRequest.getPassengerGetoffLongitude());
+        orderInfo.setPassengerGetoffLatitude(orderRequest.getPassengerGetoffLatitude());
+        orderInfo.setOrderStatus(OrderConstant.PASSENGER_GETOFF);
+
+        //订单形式的路程和时间  用service-map来写
+        ResponseResult<Car> carById = serviceDriverUserClient.getCarById(orderInfo.getCarId());
+    System.out.println(orderInfo.getPickUpPassengerTime());
+    System.out.println(orderInfo.getPassengerGetoffTime());
+        long l = orderInfo.getPickUpPassengerTime().toInstant(ZoneOffset.of("+8")).toEpochMilli();
+        long l1 = orderInfo.getPassengerGetoffTime().toInstant(ZoneOffset.of("+0")).toEpochMilli();
+        System.out.println(l + "---");
+        System.out.println(l1 + "---");
+        ResponseResult<TrearchResponse> trsearch = serviceMapClient.trsearch(
+                carById.getData().getTid(), l, l1);
+    System.out.println(trsearch+"=======");
+        TrearchResponse data = trsearch.getData();
+        long driveTime = data.getDriveTime();
+        long driveMile = data.getDriveMile();
+        orderInfo.setDriveTime(driveTime);
+        orderInfo.setDriveMile(driveMile);
+        orderInfoMapper.updateById(orderInfo);
+        return ResponseResult.success();
+    }
 }
