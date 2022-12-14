@@ -24,9 +24,29 @@ public class OrderController {
 //        String deviceCode = httpServletRequest.getHeader(HeaderParamConstant.DEVICE_CODE);
 //        orderRequest.setDeviceCode(deviceCode);
         System.out.println("add了");
-
-
         return orderInfoService.add(orderRequest);
+    }
+
+    /**
+     * 接乘客
+     * @param orderRequest
+     * @return
+     */
+    @PostMapping("/to-pick-up-passenger")
+    public ResponseResult changeStatus(@RequestBody OrderRequest orderRequest){
+
+        return orderInfoService.toPickUpPassenger(orderRequest);
+    }
+
+    /**
+     * 到达乘客目的地
+     * @param orderRequest
+     * @return
+     */
+    @PostMapping("/arrived-departure")
+    public ResponseResult arrivedDeparture(@RequestBody OrderRequest orderRequest){
+
+        return orderInfoService.arrivedDeparture(orderRequest);
     }
 
 }

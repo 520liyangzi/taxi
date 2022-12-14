@@ -21,12 +21,16 @@ import com.lyz.internalcommon.util.RedisPrefixUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.ibatis.annotations.Param;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +54,11 @@ public class OrderInfoService {
     ServiceSseClient serviceSseClient;
 
 
+    /**
+     * 新建订单
+     * @param orderRequest
+     * @return
+     */
     public ResponseResult add(OrderRequest orderRequest){
 
         System.out.println("???");
@@ -79,6 +88,7 @@ public class OrderInfoService {
 
         // 是否在进行
         if(isOrderGoingOn(orderRequest.getPassengerId()) > 0){
+      System.out.println(orderRequest.getPassengerId() + "---");
             return ResponseResult.fail(CommonStatusEnum.ORDER_NOT_CREATE.getCode(),CommonStatusEnum.ORDER_NOT_CREATE.getValue());
         }
         System.out.println("是否在进行");
@@ -95,12 +105,20 @@ public class OrderInfoService {
         orderInfoMapper.insert(orderInfo);
 
 
-
-
-
-        //派单
-        dispatchRealTimeOrder(orderInfo);
-        System.out.println("派单");
+        //定时任务处理
+        for(int i = 0;i<6;i++){
+            //派单
+            int res = dispatchRealTimeOrder(orderInfo);
+            if(res == 1){
+                break;
+            }
+            System.out.println("派单");
+            try {
+                Thread.sleep(2);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
         return ResponseResult.success();
     }
@@ -114,7 +132,9 @@ public class OrderInfoService {
      * 实时订单派单逻辑
      * @param orderInfo
      */
-    public synchronized void dispatchRealTimeOrder(OrderInfo orderInfo){
+    public synchronized int dispatchRealTimeOrder(OrderInfo orderInfo){
+        log.info("循环一次");
+        int res = 0;
         String depLatitude = orderInfo.getDepLatitude();
         String depLongitude = orderInfo.getDepLongitude();
         String center = depLatitude + "," + depLongitude;
@@ -206,21 +226,24 @@ public class OrderInfoService {
                     passengerContent.put("receiveOrderCarLongitude",orderInfo.getReceiveOrderCarLongitude());
                     passengerContent.put("receiveOrderCarLatitude",orderInfo.getReceiveOrderCarLatitude());
                     serviceSseClient.push(orderInfo.getPassengerId(),IdentityConstant.PASSENGER_IDENTITY,passengerContent.toString());
-
+                    res = 1;
                         lock.unlock();
-
-
-
-
 
                         break UI;
 //                    }
                 }
             }
         }
+        return res;
     }
 
-    ///city-driver/is-available-driver
+
+
+    /**
+     * 收否有可用司机
+     * @param orderRequest
+     * @return
+     */
     private boolean isAvailableDriver(OrderRequest orderRequest){
         System.out.println("---");
         ResponseResult<Boolean> availableDriver = serviceDriverUserClient.isAvailableDriver(orderRequest.getAddress());
@@ -228,6 +251,11 @@ public class OrderInfoService {
         return availableDriver.getData();
     }
 
+    /**
+     * 计价规则收否存在
+     * @param orderRequest
+     * @return
+     */
     private boolean isPriceRuleExists(OrderRequest orderRequest){
         System.out.println(orderRequest);
         String fareType = orderRequest.getFareType();
@@ -242,6 +270,11 @@ public class OrderInfoService {
         return booleanResponseResult.getData();
     }
 
+    /**
+     * 收否是黑名单
+     * @param deviceCodeKey
+     * @return
+     */
     private boolean isBlackDevice(String deviceCodeKey){
         Boolean aBoolean = stringRedisTemplate.hasKey(deviceCodeKey);
         if(aBoolean){
@@ -258,6 +291,11 @@ public class OrderInfoService {
         return false;
     }
 
+    /**
+     * 订单是否在进行
+     * @param passengerId
+     * @return
+     */
     private Long isOrderGoingOn(Long passengerId){
         QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("passenger_id",passengerId);
@@ -274,6 +312,11 @@ public class OrderInfoService {
     }
 
 
+    /**
+     * 司机单是否在进行
+     * @param driverId
+     * @return
+     */
     private Long isDriverOrderGoingOn(Long driverId){
         QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("driver_id",driverId);
@@ -285,6 +328,49 @@ public class OrderInfoService {
         Long aLong = orderInfoMapper.selectCount(queryWrapper);
         log.info("司机Id ：" + driverId +"正在进行的订单数量是 " + aLong);
         return aLong;
+    }
+
+
+    /**
+     * 去接乘客
+     * @param orderRequest
+     * @return
+     */
+    public ResponseResult toPickUpPassenger(@RequestBody OrderRequest orderRequest){
+        Long orderId = orderRequest.getOrderId();
+        LocalDateTime toPickUpPassengerTime = orderRequest.getToPickUpPassengerTime();
+        String toPickUpPassengerLongitude = orderRequest.getToPickUpPassengerLongitude();
+        String toPickUpPassengerLatitude = orderRequest.getToPickUpPassengerLatitude();
+        String toPickUpPassengerAddress = orderRequest.getToPickUpPassengerAddress();
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("id",orderId);
+        OrderInfo orderInfo = orderInfoMapper.selectOne(queryWrapper);
+        orderInfo.setToPickUpPassengerAddress(toPickUpPassengerAddress);
+        orderInfo.setToPickUpPassengerLatitude(toPickUpPassengerLatitude);
+        orderInfo.setToPickUpPassengerLongitude(toPickUpPassengerLongitude);
+        orderInfo.setToPickUpPassengerTime(LocalDateTime.now());
+        orderInfo.setOrderStatus(OrderConstant.DRIVER_TO_PICKUP_PASSENGER);
+
+        orderInfoMapper.updateById(orderInfo);
+        return ResponseResult.success();
+    }
+
+
+    /**
+     * 到达乘客目的地
+     * @param orderRequest
+     * @return
+     */
+    @PostMapping("/arrived-departure")
+    public ResponseResult arrivedDeparture(OrderRequest orderRequest){
+        Long orderId = orderRequest.getOrderId();
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id",orderId);
+        OrderInfo orderInfo = orderInfoMapper.selectOne(queryWrapper);
+        orderInfo.setDriverArrivedDepartureTime(LocalDateTime.now());
+        orderInfo.setOrderStatus(OrderConstant.DRIVER_ARRIVED_DEPARTURE);
+        orderInfoMapper.updateById(orderInfo);
+        return ResponseResult.success();
     }
 
 
