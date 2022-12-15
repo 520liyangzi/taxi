@@ -1,6 +1,7 @@
 package com.lyz.apipassenger.service;
 
 import com.lyz.apipassenger.remote.ServiceOrderClient;
+import com.lyz.internalcommon.constant.IdentityConstant;
 import com.lyz.internalcommon.dto.ResponseResult;
 import com.lyz.internalcommon.request.OrderRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,5 +15,9 @@ public class OrderService {
 
     public ResponseResult add(OrderRequest orderRequest){
         return serviceOrderClient.add(orderRequest);
+    }
+
+    public ResponseResult cancel(Long orderId) {
+        return serviceOrderClient.cancel(orderId, IdentityConstant.PASSENGER_IDENTITY);
     }
 }

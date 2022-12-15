@@ -62,4 +62,16 @@ public class OrderController {
     }
 
 
+    /**
+     * 司机取消
+     * @param orderId
+     * @return
+     */
+    @PostMapping("/cancel")
+    public ResponseResult cancel(Long orderId){
+
+        return orderInfoService.cancel(orderId);
+    }
+
+
 }

@@ -13,4 +13,7 @@ public interface ServiceOrderClient {
 
     @RequestMapping(method = RequestMethod.GET,value = "/test-real-time-order/{orderId}")
     ResponseResult t(@PathVariable("orderId")long orderId);
+
+    @RequestMapping(method = RequestMethod.POST,value = "/order/cancel")
+    ResponseResult cancel(@RequestParam Long orderId,@RequestParam String identity);
 }

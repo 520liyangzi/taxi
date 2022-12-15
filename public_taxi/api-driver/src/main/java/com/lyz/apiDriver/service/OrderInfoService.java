@@ -1,6 +1,7 @@
 package com.lyz.apiDriver.service;
 
 import com.lyz.apiDriver.remote.ServiceOrderClient;
+import com.lyz.internalcommon.constant.IdentityConstant;
 import com.lyz.internalcommon.dto.ResponseResult;
 import com.lyz.internalcommon.request.OrderRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -29,5 +30,9 @@ public class OrderInfoService {
     public ResponseResult passengerGetoff(OrderRequest orderRequest) {
         serviceOrderClient.passengerGetoff(orderRequest);
         return ResponseResult.success();
+    }
+
+    public ResponseResult cancel(Long orderId) {
+        return serviceOrderClient.cancel(orderId, IdentityConstant.DRIVER_IDENTITY);
     }
 }

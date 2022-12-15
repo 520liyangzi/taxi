@@ -73,4 +73,26 @@ public class OrderController {
         return orderInfoService.passengerGetoff(orderRequest);
     }
 
+    /**
+     * 支付完成
+     * @param orderRequest
+     * @return
+     */
+    @PostMapping("/pay")
+    public ResponseResult pay(@RequestBody OrderRequest orderRequest){
+        return orderInfoService.pay(orderRequest);
+    }
+
+    /**
+     * 订单取消
+     * @param orderId
+     * @param identity
+     * @return
+     */
+    @PostMapping("/cancel")
+    public ResponseResult cancel(Long orderId,String identity){
+
+        return orderInfoService.cancel(orderId,identity);
+    }
+
 }

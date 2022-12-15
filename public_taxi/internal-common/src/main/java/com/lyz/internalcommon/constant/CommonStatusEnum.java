@@ -35,6 +35,8 @@ public enum CommonStatusEnum {
 
     AVAILIABLE_DRIVER_EMPTY(1607,"可用的司机唯恐"),
 
+    ORDER_CANCEL_ERROR(1608,"取消失败"),
+
 
 
 

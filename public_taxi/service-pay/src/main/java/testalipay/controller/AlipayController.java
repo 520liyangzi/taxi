@@ -1,12 +1,14 @@
-package testalipay;
+package testalipay.controller;
 
 import com.alipay.easysdk.factory.Factory;
 import com.alipay.easysdk.payment.page.models.AlipayTradePagePayResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import testalipay.service.AlipayService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -21,6 +23,7 @@ public class AlipayController {
     //ligbqs3062@sandbox.com
     @GetMapping("/pay")
     public String pay(String subject,String pitTradeNo,String totalAmount){
+    System.out.println("z在pay 咯");
         AlipayTradePagePayResponse response;
         try {
             response = Factory.Payment.Page().pay(subject,pitTradeNo,totalAmount,"");
@@ -30,6 +33,9 @@ public class AlipayController {
         }
         return response.getBody();
     }
+
+    @Autowired
+    AlipayService alipayService;
 
     @PostMapping("/notify")
     public String notify(HttpServletRequest request){
@@ -41,14 +47,13 @@ public class AlipayController {
             for(String name:parameterMap.keySet()){
                 param.put(name,request.getParameter(name));
             }
-
             try {
                 if(Factory.Payment.Common().verifyNotify(param)){
             System.out.println("通过支付宝的验证了");
-            for (String name : param.keySet()){
-            System.out.println("收到的参数：");
-            System.out.println(name + "   " + param.get(name));
-            }
+                    String out_trade_no = param.get("out_trade_no");
+                    Long orderId = Long.parseLong(out_trade_no);
+                    alipayService.pay(orderId);
+
                 }else {
           System.out.println("支付宝验证不通过");
                 }

@@ -20,4 +20,11 @@ public class OrderController {
         System.out.println(orderRequest);
         return orderService.add(orderRequest);
     }
+
+
+    @PostMapping("/cancel")
+    public ResponseResult cancel(Long orderId){
+
+        return orderService.cancel(orderId);
+    }
 }
