@@ -115,11 +115,19 @@ public class OrderInfoService {
             if(res == 1){
                 break;
             }
-            System.out.println("派单");
-            try {
-                Thread.sleep(2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (i == 5){
+        // 没办法了  订单无效
+        System.out.println("还没有找到哇！！！");
+                orderInfo.setOrderStatus(OrderConstant.ORDER_INVALIT);
+                orderInfoMapper.updateById(orderInfo);
+            }else {
+                //等等20秒 再找一波
+                System.out.println("派单");
+                try {
+                    Thread.sleep(2);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
