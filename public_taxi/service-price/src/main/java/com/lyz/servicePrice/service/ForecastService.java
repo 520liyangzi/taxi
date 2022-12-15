@@ -12,6 +12,7 @@ import com.lyz.servicePrice.remote.ServiceMapClint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -27,6 +28,16 @@ public class ForecastService {
     @Autowired
     private PriceRuleMapper priceRuleMapper;
 
+    /**
+     * 计算预估价格
+     * @param depLongitude
+     * @param depLatitude
+     * @param destLongitude
+     * @param destLatitude
+     * @param cityCode
+     * @param vehicleType
+     * @return
+     */
     public ResponseResult forecastPrice(String depLongitude, String depLatitude, String destLongitude, String destLatitude,
                                         String cityCode,String vehicleType){
 
@@ -66,6 +77,31 @@ public class ForecastService {
         return ResponseResult.success(forecastPriceResponse);
     }
 
+    public ResponseResult<Double> calculatePrice(Integer distance,Integer duration,String cityCode,String vehicleType){
+        log.info("读取佳佳规则");
+        Map<String,Object> map = new HashMap<>();
+        map.put("city_code",cityCode);
+        map.put("vehicle_type",vehicleType);
+    System.out.println(map);
+        List<PriceRule> priceRules = priceRuleMapper.selectByMap(map);
+        if (priceRules.size()==0){
+            return ResponseResult.fail(CommonStatusEnum.PRICE_RULE_EMPTY.getCode(),CommonStatusEnum.PRICE_RULE_EMPTY.getValue());
+        }
+    System.out.println(priceRules);
+        PriceRule priceRule =  priceRules.get(priceRules.size()-1);
+    System.out.println(priceRule);
+        log.info("根据距离 市场和计价规则   计算价格");
+        double price = getPrice(distance, duration, priceRule);
+        return ResponseResult.success(price);
+    }
+
+    /**
+     * 根据距离时长计算实际规则
+     * @param distance
+     * @param duration
+     * @param priceRule
+     * @return
+     */
     public  double getPrice(Integer distance,Integer duration,PriceRule priceRule){
         double price = 0;
 

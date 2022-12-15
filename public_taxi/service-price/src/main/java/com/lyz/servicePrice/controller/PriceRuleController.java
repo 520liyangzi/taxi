@@ -3,6 +3,7 @@ package com.lyz.servicePrice.controller;
 
 import com.lyz.internalcommon.dto.PriceRule;
 import com.lyz.internalcommon.dto.ResponseResult;
+import com.lyz.servicePrice.service.ForecastService;
 import com.lyz.servicePrice.service.PriceRuleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,9 @@ import org.springframework.stereotype.Controller;
 public class PriceRuleController {
     @Autowired
     PriceRuleService priceRuleService;
+
+    @Autowired
+    ForecastService forecastService;
 
     @PostMapping("/add")
     public ResponseResult add(@RequestBody PriceRule priceRule){

@@ -169,6 +169,15 @@ public class OrderInfoService {
                     Long driverId = orderDriverResponse.getDriverId();
                     //判断司机是否有正在进行中的订单
 
+                    String vehicleTypeFromCar = orderDriverResponse.getVehicleType();
+                    //看看车型是否符合
+                    String vehicleType = orderInfo.getVehicleType();
+                    if (!vehicleTypeFromCar.trim().equals(vehicleType.trim())){
+            System.out.println("车型不符合！！！！！！！！！！！！！！！！");
+                        continue;
+                    }
+
+
                     //不管原来指向哪里  最终都是从常量池中拿出一个引用地址  只有一个地方
                     //如果没有intern  则可能有很多入口 虽然有锁
                     String lockKey = (driverId + "").intern();
@@ -181,7 +190,7 @@ public class OrderInfoService {
                             continue;
                         }
 
-                        //订单直接匹配司机   把订单中与司机相关的信息补全
+                    //订单直接匹配司机   把订单中与司机相关的信息补全
                         QueryWrapper<Car> queryWrapper = new QueryWrapper<Car>();
                         queryWrapper.eq("id",carId);
                         LocalDateTime now = LocalDateTime.now();
@@ -429,6 +438,15 @@ public class OrderInfoService {
         long driveMile = data.getDriveMile();
         orderInfo.setDriveTime(driveTime);
         orderInfo.setDriveMile(driveMile);
+        double time = driveTime / 1000 / 60;
+        if (time == 0){
+            time += 1;
+        }
+        //获取最终价格
+        ResponseResult<Double> doubleResponseResult = servicePriceClient.calculatePrice((int) driveMile, (int) time, orderInfo.getAddress(), orderInfo.getVehicleType());
+        Double price = doubleResponseResult.getData();
+    System.out.println(price+"oooooooooooooo");
+        orderInfo.setPrice(price);
         orderInfoMapper.updateById(orderInfo);
         return ResponseResult.success();
     }

@@ -89,10 +89,10 @@ public class OrderRequest {
      * 乘客下车纬度
      */
     private String passengerGetoffLatitude;
-//
-//    /**
-//     * 车型
-//     */
-//    private String vehicleType;
+
+    /**
+     * 车型
+     */
+    private String vehicleType;
 
 }
