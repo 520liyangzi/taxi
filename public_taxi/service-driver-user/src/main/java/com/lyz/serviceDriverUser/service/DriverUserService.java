@@ -114,4 +114,19 @@ public class DriverUserService {
 
         return ResponseResult.success(orderDriverResponse);
     }
+
+
+    public ResponseResult getCarBindingByDriverId(String driverPhone) {
+        QueryWrapper<DriverUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("driver_phone",driverPhone);
+        DriverUser driverUser = driverUserMapper.selectOne(queryWrapper);
+        Long driverUserId = driverUser.getId();
+
+        QueryWrapper<DriverCarBindingRelationship> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.eq("driver_id",driverUserId);
+        queryWrapper1.eq("bind_state",DriverCarConstants.DRIVER_CAR_BIND);
+        DriverCarBindingRelationship relationship = driverCarBindingRelationshipMapper.selectOne(queryWrapper1);
+        return ResponseResult.success(relationship);
+
+    }
 }

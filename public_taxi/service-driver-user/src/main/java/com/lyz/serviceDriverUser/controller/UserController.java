@@ -2,14 +2,18 @@ package com.lyz.serviceDriverUser.controller;
 
 import com.lyz.internalcommon.dto.DriverUser;
 import com.lyz.internalcommon.dto.ResponseResult;
+import com.lyz.internalcommon.dto.TokenResult;
 import com.lyz.internalcommon.response.DriverUserExistsResponse;
 import com.lyz.internalcommon.response.OrderDriverResponse;
+import com.lyz.internalcommon.util.JwtUtils;
 import com.lyz.serviceDriverUser.service.DriverUserService;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @Slf4j
@@ -61,5 +65,15 @@ public class UserController {
     @GetMapping("/get-availiable-driver/{carId}")
     public ResponseResult<OrderDriverResponse> getAvailiableDriver(@PathVariable("carId") Long carId){
         return driverUserService.getAvailiableDriver(carId);
+    }
+
+    /**
+     * 根据司机手机号查询司机和车辆绑定关系
+     * @param driverPhone
+     * @return
+     */
+    @GetMapping("/driver-car- binding-relationship")
+    public ResponseResult getCarBindingByDriverId(@RequestParam String driverPhone){
+        return driverUserService.getCarBindingByDriverId(driverPhone);
     }
 }

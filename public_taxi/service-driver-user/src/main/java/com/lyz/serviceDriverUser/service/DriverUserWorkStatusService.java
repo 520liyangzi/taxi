@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class DriverUserWorkStatusService {
         List<DriverUserWorkStatus> driverUserWorkStatuses = driverUserWorkStatusMapper.selectByMap(queryMap);
         DriverUserWorkStatus driverUserWorkStatus = driverUserWorkStatuses.get(0);
         driverUserWorkStatus.setWorkStatus(workStatus);
-
+        driverUserWorkStatus.setGmtModified(LocalDateTime.now());
         driverUserWorkStatusMapper.updateById(driverUserWorkStatus);
 
         return ResponseResult.success("");
