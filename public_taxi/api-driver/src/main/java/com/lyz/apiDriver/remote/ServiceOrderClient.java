@@ -3,10 +3,7 @@ package com.lyz.apiDriver.remote;
 import com.lyz.internalcommon.dto.ResponseResult;
 import com.lyz.internalcommon.request.OrderRequest;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient("service-order")
 public interface ServiceOrderClient {
@@ -25,4 +22,7 @@ public interface ServiceOrderClient {
 
     @RequestMapping(method = RequestMethod.POST,value = "/order/cancel")
     ResponseResult cancel(@RequestParam Long orderId, @RequestParam String identity);
+
+    @PostMapping("/order/push-pay-info")
+    ResponseResult pushPayInfo(@RequestBody OrderRequest orderRequest);
 }

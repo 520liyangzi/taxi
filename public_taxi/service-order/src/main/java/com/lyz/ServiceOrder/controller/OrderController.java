@@ -95,4 +95,9 @@ public class OrderController {
         return orderInfoService.cancel(orderId,identity);
     }
 
+    @PostMapping("/push-pay-info")
+    public ResponseResult pushPayInfo(@RequestBody OrderRequest orderRequest){
+        return orderInfoService.pushPayInfo(orderRequest);
+    }
+
 }

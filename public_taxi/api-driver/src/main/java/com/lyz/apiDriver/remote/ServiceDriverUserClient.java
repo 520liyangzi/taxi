@@ -13,13 +13,12 @@ public interface ServiceDriverUserClient {
     @RequestMapping(method = RequestMethod.GET,value = "/check-driver/{driverPhone}")
     ResponseResult<DriverUserExistsResponse> checkDriver(@PathVariable("driverPhone") String driverPhone);
 
-
     @RequestMapping(method = RequestMethod.GET,value = "/car")
     ResponseResult<Car> getCarbyId(@RequestParam Long carId);
 
     @RequestMapping(method = RequestMethod.POST,value = "/driver-user-work-status")
     ResponseResult changeWorkStatus(@RequestBody DriverUserWorkStatus driverUserWorkStatus);
 
-    @GetMapping("/driver-car- binding-relationship")
+    @GetMapping("/driver-car-binding-relationship")
     ResponseResult<DriverCarBindingRelationship> getCarBindingByDriverId(@RequestParam String driverPhone);
 }
