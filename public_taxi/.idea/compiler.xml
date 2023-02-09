@@ -7,18 +7,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="internal-common" />
-        <module name="service-sse" />
         <module name="api-boss" />
         <module name="api-passenger" />
         <module name="service-driver-user" />
+        <module name="service-order" />
+        <module name="service-pay" />
+        <module name="api-driver" />
+        <module name="internal-common" />
+        <module name="service-sse" />
+        <module name="gateway-service" />
         <module name="service-verificationcode" />
         <module name="service-map" />
         <module name="service-price" />
-        <module name="service-order" />
-        <module name="service-pay" />
         <module name="service-passenger-user" />
-        <module name="api-driver" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -31,6 +32,7 @@
       <module name="api-boss" options="-parameters" />
       <module name="api-driver" options="-parameters" />
       <module name="api-passenger" options="-parameters" />
+      <module name="gateway-service" options="-parameters" />
       <module name="internal-common" options="-parameters" />
       <module name="service-driver-user" options="-parameters" />
       <module name="service-map" options="-parameters" />
