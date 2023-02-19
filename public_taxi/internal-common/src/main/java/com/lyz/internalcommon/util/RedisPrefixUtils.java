@@ -9,10 +9,6 @@ public class RedisPrefixUtils {
     //黑名单设备号
     public static String blackDeviceCodePrefix = "black-device-";
 
-
-
-
-
     public static String generatorKeyByPhone(String Phone,String identity){
         return verificationCodePrefix +identity+"-"+ Phone;
     }

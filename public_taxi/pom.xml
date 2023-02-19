@@ -28,8 +28,6 @@
         <module>service-pay</module>
     </modules>
 
-
-
     <packaging>pom</packaging>
 
     <properties>

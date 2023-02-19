@@ -74,6 +74,7 @@ public class VerficationCodeService {
         //颁发令牌!!!   md5可以用暴力查询的方式查到   jwt有个secrety 就很安全  别人破解不出来
         System.out.println("颁发令牌!!!");
 
+        // 这里不能用魔法值，  得用常量或者枚举
         String accessToken = JwtUtils.generatorToken(passengerPhone, IdentityConstant.PASSENGER_IDENTITY, TokenConstants.ACCESS_TOKEN_TYPE);
         String refrshToken = JwtUtils.generatorToken(passengerPhone, IdentityConstant.PASSENGER_IDENTITY,TokenConstants.REFRESH_TOKEN_TYOE);
 
