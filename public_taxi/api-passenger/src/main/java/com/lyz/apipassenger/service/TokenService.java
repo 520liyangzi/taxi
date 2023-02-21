@@ -47,8 +47,8 @@ public class TokenService {
         stringRedisTemplate.opsForValue().set(accessTokenKey,accessToken,30, TimeUnit.DAYS);
         stringRedisTemplate.opsForValue().set(refreshTokenKey,refreshToken,31,TimeUnit.DAYS);
 
-        stringRedisTemplate.opsForValue().set(accessTokenKey,accessToken,10, TimeUnit.SECONDS);
-        stringRedisTemplate.opsForValue().set(refreshTokenKey,refreshToken,100,TimeUnit.SECONDS);
+//        stringRedisTemplate.opsForValue().set(accessTokenKey,accessToken,10, TimeUnit.SECONDS);
+//        stringRedisTemplate.opsForValue().set(refreshTokenKey,refreshToken,100,TimeUnit.SECONDS);
         //生成双token
 
         TokenResponse tokenResponse = new TokenResponse();

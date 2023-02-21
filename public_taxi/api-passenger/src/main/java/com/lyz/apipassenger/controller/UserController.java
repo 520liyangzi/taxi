@@ -13,7 +13,7 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @GetMapping("/users/{phone}")
+    @GetMapping("/users")
     public ResponseResult getUser(HttpServletRequest request){
         String accessToken = request.getHeader("Authorization");
         return userService.getUserByAccessToken(accessToken);

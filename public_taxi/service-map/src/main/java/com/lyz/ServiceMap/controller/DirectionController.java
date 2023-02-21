@@ -22,7 +22,6 @@ public class DirectionController {
         String depLatitude = forecastPriceDTO.getDepLatitude();
         String destLongitude = forecastPriceDTO.getDestLongitude();
         String destLatitude = forecastPriceDTO.getDestLatitude();
-
         return directionService.driving(depLongitude, depLatitude, destLongitude, destLatitude);
     }
 }

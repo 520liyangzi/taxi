@@ -25,8 +25,9 @@ public class UserService {
         String phone = tokenResult.getPhone();
         log.info("手机号 :  " + phone);
 
-        VerificationCodeDTO verificationCodeDTO = new VerificationCodeDTO();
-        verificationCodeDTO.setPassengerPhone(phone);
+//        VerificationCodeDTO verificationCodeDTO = new VerificationCodeDTO();
+//        verificationCodeDTO.setPassengerPhone(phone);
+
         ResponseResult<PassengerUser> userByPhone = servicePassengerUserClint.getUserByPhone(phone);
 
 

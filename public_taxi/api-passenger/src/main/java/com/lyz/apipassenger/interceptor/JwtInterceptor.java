@@ -38,7 +38,7 @@ public class JwtInterceptor implements HandlerInterceptor {
                 resultString = "access token invalid";
                 result = false;
             }else {
-                if(tokenRedis.trim().equals(tokenKey.trim())){
+                if(!tokenRedis.trim().equals(token.trim())){
                     resultString = "access token is not same";
                     result = false;
                 }
@@ -47,6 +47,7 @@ public class JwtInterceptor implements HandlerInterceptor {
         if(!result){
             PrintWriter out = response.getWriter();
             out.print(JSONObject.fromObject(ResponseResult.fail(resultString)).toString());
+            //等于这样就直接返回了那个 JSON对象
         }
         return result;
     }
