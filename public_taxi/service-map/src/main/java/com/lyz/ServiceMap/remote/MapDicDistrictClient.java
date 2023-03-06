@@ -30,6 +30,7 @@ public class MapDicDistrictClient {
         url.append("&");
         url.append("key="+key);
         ResponseEntity<String> forEntity = restTemplate.getForEntity(url.toString(), String.class);
+    System.out.println(url.toString());
         return forEntity.getBody();
     }
 

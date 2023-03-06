@@ -25,7 +25,7 @@ public class DistrictService {
 
     public ResponseResult initDicDistrict(String keywords){
         String dicDistrictResult = mapDicDistrictClient.dicDistrict(keywords);
-        //System.out.println(dicDistrict);
+    System.out.println(dicDistrictResult);
 
         //解析结果
         JSONObject dicDistrictJsonObject = JSONObject.fromObject(dicDistrictResult);

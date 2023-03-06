@@ -85,6 +85,7 @@ public class PriceRuleService{
             fareVersion = lastestRule.getFareVersion();
         }
         priceRule.setFareVersion(++fareVersion);
+    System.out.println(priceRule);
         priceRuleMapper.insert(priceRule);
         return ResponseResult.success();
     }

@@ -84,6 +84,9 @@ public class DriverUserService {
         DriverCarBindingRelationshipQueryWrapper.eq("car_id",carId);
         DriverCarBindingRelationshipQueryWrapper.eq("bind_state",DriverCarConstants.DRIVER_CAR_BIND);
         DriverCarBindingRelationship relationship = driverCarBindingRelationshipMapper.selectOne(DriverCarBindingRelationshipQueryWrapper);
+        if(relationship == null){
+            return ResponseResult.fail(16087,"都没有绑定关系呢");
+        }
         Long driverId = relationship.getDriverId();
 
         QueryWrapper<DriverUserWorkStatus> DriverUserWorkStatusQueryWrapper = new QueryWrapper<>();

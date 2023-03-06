@@ -26,6 +26,7 @@ public class AlipayController {
     System.out.println("z在pay 咯");
         AlipayTradePagePayResponse response;
         try {
+            //主题  流水号  多少钱
             response = Factory.Payment.Page().pay(subject,pitTradeNo,totalAmount,"");
         } catch (Exception e) {
             e.printStackTrace();

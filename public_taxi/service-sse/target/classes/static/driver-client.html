@@ -13,13 +13,15 @@
 <button onclick="sourceclose()">关闭链接</button>
 
 <script>
-    userId = "1603537162713067522";
+    userId = "1631106614845407234";
     identity = 0;
     sourse = null;
 
     if(window.EventSource){
         console.info("支持SSE");
+        // 看看能不能连接
         sourse = new EventSource("http://localhost:9000/connect?userId="+userId+"&identity="+identity);
+
         //监听服务端推送的消息
         sourse.addEventListener("message",function (e){
             content = e.data;

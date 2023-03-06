@@ -17,11 +17,15 @@ import java.util.Map;
 public class SseController {
 
     public static Map<String,SseEmitter> stringSseEmitterMap = new HashMap<>();
+    // 用静态的map来存哦
 
     @GetMapping("/connect")
     public SseEmitter connect(@RequestParam Long userId,@RequestParam String identity){
+        // 进行前后端交互
         log.info("用户Id是 " + userId + "身份类型是 "+ identity);
         SseEmitter sseEmitter = new SseEmitter(0L);
+        // 永不超时  除非自己关闭
+
         String mapKey = SsePrefixUtils.gengeratorKey(userId,identity);
         stringSseEmitterMap.put(mapKey,sseEmitter);
         return sseEmitter;
@@ -35,6 +39,7 @@ public class SseController {
         try {
             if (stringSseEmitterMap.containsKey(mapKey)){
                 stringSseEmitterMap.get(mapKey).send(content);
+                // 把消息发送出去！！！
             }else {
                 return "推送失败！";
             }

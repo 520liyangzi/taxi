@@ -71,11 +71,6 @@ public class OrderInfoService {
         //生成key
         String deviceCodeKey = RedisPrefixUtils.blackDeviceCodePrefix + deviceCode;
 
-        if(!isAvailableDriver(orderRequest)){
-            return ResponseResult.fail(CommonStatusEnum.NO_DRIVER.getCode(),CommonStatusEnum.NO_DRIVER.getValue());
-        }
-        System.out.println("有司机");
-
         //设置key  看原来有没有
         if(isBlackDevice(deviceCodeKey)){
             return ResponseResult.fail(CommonStatusEnum.BLACK.getCode(),CommonStatusEnum.BLACK.getValue());
@@ -88,13 +83,18 @@ public class OrderInfoService {
         }
         System.out.println("正常");
 
+        if(!isAvailableDriver(orderRequest)){
+            return ResponseResult.fail(CommonStatusEnum.NO_DRIVER.getCode(),CommonStatusEnum.NO_DRIVER.getValue());
+            //这里根据城市编码 去生成的视图里查  视图里有driver id， city code，work status
+        }
+        System.out.println("有司机");
 
         // 是否在进行
         if(isOrderGoingOn(orderRequest.getPassengerId()) > 0){
       System.out.println(orderRequest.getPassengerId() + "---");
             return ResponseResult.fail(CommonStatusEnum.ORDER_NOT_CREATE.getCode(),CommonStatusEnum.ORDER_NOT_CREATE.getValue());
         }
-        System.out.println("是否在进行");
+        System.out.println("是否在工作");
 
         OrderInfo orderInfo = new OrderInfo();
 
@@ -107,6 +107,7 @@ public class OrderInfoService {
 
         orderInfoMapper.insert(orderInfo);
 
+        log.error("现在已经是插入成功了！！！！！！！！！！！！！！！！");
 
         //定时任务处理
         for(int i = 0;i<6;i++){
@@ -163,15 +164,24 @@ public class OrderInfoService {
                 JSONObject jsonObject = result.getJSONObject(j);
                 String carIdString = jsonObject.getString("carId");
                 Long carId = Long.parseLong(carIdString);
-                String  longitude = jsonObject.getString("longitude");
+                String longitude = jsonObject.getString("longitude");
                 String latitude = jsonObject.getString("latitude");
 
+        // 找到车了  再看看司机的信息 能不能用呢？
+        System.out.println("让我来看看carId是多少" + carId);
                 //根据ID  查询对应是否有对应的可派单司机
                 ResponseResult<OrderDriverResponse> availiableDriver = serviceDriverUserClient.getAvailiableDriver(carId);
+                if(availiableDriver == null){
+          System.out.println("没有对应可派单司机");
+          continue UI;
+                }
                 if (availiableDriver.getCode() == 1607){
                     log.info("没有对应的司机    " + carId);
                     continue UI;
-                }else {
+                }else if(availiableDriver.getCode() == 16087){
+                    log.info("都他妈没有绑定关系");
+                    continue UI;
+                }else{
                     //出车  +  没有订单
                     log.info("找到了正在出车的司机  车辆ID是 " + carId);
                     OrderDriverResponse orderDriverResponse = availiableDriver.getData();
@@ -179,8 +189,10 @@ public class OrderInfoService {
                     //判断司机是否有正在进行中的订单
 
                     String vehicleTypeFromCar = orderDriverResponse.getVehicleType();
+          System.out.println("让我来看看我公司车型" + vehicleTypeFromCar);
                     //看看车型是否符合
                     String vehicleType = orderInfo.getVehicleType();
+                    System.out.println("让我来看看你下单的车型" + vehicleType);
                     if (!vehicleTypeFromCar.trim().equals(vehicleType.trim())){
             System.out.println("车型不符合！！！！！！！！！！！！！！！！");
                         continue;
@@ -317,6 +329,7 @@ public class OrderInfoService {
      * @return
      */
     private Long isOrderGoingOn(Long passengerId){
+    System.out.println("进入了 isordergoingon");
         QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("passenger_id",passengerId);
         queryWrapper.and(wrapper -> wrapper.eq("order_status", OrderConstant.ORDER_STSRT)

@@ -70,6 +70,9 @@ public class TerminalClient {
         String body = forEntity.getBody();
         JSONObject jsonObject = JSONObject.fromObject(body);
         JSONObject data = jsonObject.getJSONObject("data");
+        if (data == null){
+            return ResponseResult.fail("没有结果");
+        }
         JSONArray results = data.getJSONArray("results");
         List<TerminalResponse> list = new ArrayList<>();
         for(int i = 0;i<results.size();i++){
