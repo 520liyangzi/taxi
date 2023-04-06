@@ -1,12 +1,15 @@
 package com.lyz.ServiceOrder.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.lyz.ServiceOrder.mapper.OrderInfoMapper;
 import com.lyz.ServiceOrder.service.OrderInfoService;
 import com.lyz.internalcommon.constant.HeaderParamConstant;
 import com.lyz.internalcommon.constant.OrderConstant;
+import com.lyz.internalcommon.dto.OrderInfo;
 import com.lyz.internalcommon.dto.ResponseResult;
 import com.lyz.internalcommon.request.OrderRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +21,9 @@ import javax.servlet.http.HttpServletRequest;
 public class OrderController {
     @Autowired
     OrderInfoService orderInfoService;
+
+    @Autowired
+    OrderInfoMapper orderInfoMapper;
 
     @PostMapping("/add")
     public ResponseResult add(@RequestBody OrderRequest orderRequest,HttpServletRequest httpServletRequest){
@@ -75,9 +81,10 @@ public class OrderController {
 
     /**
      * 支付完成
-     * @param orderRequest
+     * @param
      * @return
      */
+
     @PostMapping("/pay")
     public ResponseResult pay(@RequestBody OrderRequest orderRequest){
         return orderInfoService.pay(orderRequest);

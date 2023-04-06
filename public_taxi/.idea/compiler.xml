@@ -12,6 +12,7 @@
         <module name="service-driver-user" />
         <module name="service-order" />
         <module name="service-pay" />
+        <module name="message-send-service" />
         <module name="api-driver" />
         <module name="internal-common" />
         <module name="service-sse" />
@@ -34,6 +35,7 @@
       <module name="api-passenger" options="-parameters" />
       <module name="gateway-service" options="-parameters" />
       <module name="internal-common" options="-parameters" />
+      <module name="message-send-service" options="-parameters" />
       <module name="service-driver-user" options="-parameters" />
       <module name="service-map" options="-parameters" />
       <module name="service-order" options="-parameters" />

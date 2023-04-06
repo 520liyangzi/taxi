@@ -19,6 +19,7 @@ import com.lyz.internalcommon.response.OrderDriverResponse;
 import com.lyz.internalcommon.response.TerminalResponse;
 import com.lyz.internalcommon.response.TrearchResponse;
 import com.lyz.internalcommon.util.RedisPrefixUtils;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -62,6 +63,8 @@ public class OrderInfoService {
      * @param orderRequest
      * @return
      */
+
+    @GlobalTransactional
     public ResponseResult add(OrderRequest orderRequest){
 
         System.out.println("???");

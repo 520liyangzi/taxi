@@ -2,6 +2,8 @@ package testalipay.controller;
 
 import com.alipay.easysdk.factory.Factory;
 import com.alipay.easysdk.payment.page.models.AlipayTradePagePayResponse;
+import org.checkerframework.checker.units.qual.A;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,8 @@ import java.util.Map;
 public class AlipayController {
         //  localhost:9001/alipay/pay?subject=李杨子&pitTradeNo=1002&totalAmount=100
     //ligbqs3062@sandbox.com
+
+
     @GetMapping("/pay")
     public String pay(String subject,String pitTradeNo,String totalAmount){
     System.out.println("z在pay 咯");
@@ -38,6 +42,11 @@ public class AlipayController {
     @Autowired
     AlipayService alipayService;
 
+  public static void main(String[] args) {
+    //
+
+  }
+
     @PostMapping("/notify")
     public String notify(HttpServletRequest request){
     System.out.println("支付宝回调了");
@@ -53,6 +62,10 @@ public class AlipayController {
             System.out.println("通过支付宝的验证了");
                     String out_trade_no = param.get("out_trade_no");
                     Long orderId = Long.parseLong(out_trade_no);
+
+//                    String ii = "1584370883330600969";
+//                    rabbitTemplate.convertAndSend("pay.queue",ii);
+
                     alipayService.pay(orderId);
 
                 }else {

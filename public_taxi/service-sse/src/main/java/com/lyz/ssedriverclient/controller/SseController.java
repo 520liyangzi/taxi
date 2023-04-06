@@ -38,6 +38,7 @@ public class SseController {
         String mapKey = SsePrefixUtils.gengeratorKey(userId,identity);
         try {
             if (stringSseEmitterMap.containsKey(mapKey)){
+        System.out.println(stringSseEmitterMap.get(mapKey));
                 stringSseEmitterMap.get(mapKey).send(content);
                 // 把消息发送出去！！！
             }else {

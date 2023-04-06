@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -50,7 +52,8 @@ public class VerficationCodeService {
 
 
     public ResponseResult checkCode(String passengerPhone, String verificationCode){
-        //根据手机号去redis读取验证码！！！
+    // 根据手机号去redis读取验证码！！！
+    System.out.println("???");
         String key = RedisPrefixUtils.generatorKeyByPhone(passengerPhone,IdentityConstant.PASSENGER_IDENTITY);
         String codeRedis = stringRedisTemplate.opsForValue().get(key);
         //校验！！！

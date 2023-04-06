@@ -63,6 +63,7 @@ public class ForecastService {
         map.put("vehicle_type",vehicleType);
         List<PriceRule> priceRules = priceRuleMapper.selectByMap(map);
         if (priceRules.size()==0){
+            //  这里就看了城市有没有开通业务
             return ResponseResult.fail(CommonStatusEnum.PRICE_RULE_EMPTY.getCode(),CommonStatusEnum.PRICE_RULE_EMPTY.getValue());
         }
         PriceRule priceRule =  priceRules.get(priceRules.size()-1);

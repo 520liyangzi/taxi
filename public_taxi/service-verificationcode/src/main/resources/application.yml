@@ -2,6 +2,16 @@ server:
   port: 8082
 
 spring:
+  rabbitmq:
+    host: 192.168.245.129 # rabbitMQ的ip地址
+    port: 5672 # 端口
+    username: itcast
+    password: 123321
+    virtual-host: /
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
   cloud:
     nacos:
       discovery:
